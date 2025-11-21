@@ -3,6 +3,8 @@ package es.upm.etsiinf.gib.pmd_proyecto.grouplist;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -35,7 +37,7 @@ public class GroupListActivity extends AppCompatActivity {
         groups.add(new Group("🇪🇸", "Madrid in French"));
         groups.add(new Group("🚽", "Club de billard"));
         groups.add(new Group("🌅", "Barca"));
-        groups.add(new Group("🇪🇸", "Vacances malaga"));
+        groups.add(new Group("🇪🇸", "Malaga vacation"));
 
         GroupAdapter adapter = new GroupAdapter(this, groups);
         listView.setAdapter(adapter);
@@ -49,5 +51,22 @@ public class GroupListActivity extends AppCompatActivity {
             intent.putExtra("GROUP_NAME", clicked.getName());
             startActivity(intent);
         });
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Group clicked = groups.get(position);
+
+                Intent intent = new Intent(GroupListActivity.this, GroupDetailActivity.class);
+
+                // send info about the group
+                intent.putExtra("GROUP_INDEX", position);          // 0,1,2...
+                intent.putExtra("GROUP_NAME", clicked.getName());
+                intent.putExtra("GROUP_EMOJI", clicked.getEmoji());
+
+                startActivity(intent);
+            }
+        });
+
     }
 }
