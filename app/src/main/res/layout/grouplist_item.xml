@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="12dp"
+    android:background="@android:color/transparent">
+
+    <!-- Card container -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp"
+        android:background="@drawable/bg_group_item"
+        >
+
+        <!-- Emoji / icon -->
+        <TextView
+            android:id="@+id/groupEmoji"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:text="🇪🇸"
+            android:textSize="28sp" />
+
+        <!-- Space -->
+        <Space
+            android:layout_width="12dp"
+            android:layout_height="wrap_content" />
+
+        <!-- Group name -->
+        <TextView
+            android:id="@+id/groupName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Madrid trip"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#000000" />
+
+        <!-- Arrow icon -->
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_media_next"
+            app:tint="#808080" />
+    </LinearLayout>
+</LinearLayout>
