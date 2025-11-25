@@ -3,6 +3,7 @@ package es.upm.etsiinf.gib.pmd_proyecto.groupdetail;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -16,9 +17,15 @@ import androidx.core.view.WindowInsetsCompat;
 import java.util.ArrayList;
 
 import es.upm.etsiinf.gib.pmd_proyecto.R;
+import es.upm.etsiinf.gib.pmd_proyecto.groupdetail.AddExpense.AddExpenseActivity;
 import es.upm.etsiinf.gib.pmd_proyecto.grouplist.GroupListActivity;
 
 public class GroupDetailActivity extends AppCompatActivity {
+    private static final int REQUEST_ADD_EXPENSE = 1;
+
+    private ArrayList<Expense> expenseList;
+    private ExpenseAdapter adapter;
+    private String currentUserName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +43,7 @@ public class GroupDetailActivity extends AppCompatActivity {
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 // Go back to the GroupListActivity
-                Intent intent = new Intent(GroupDetailActivity.this, GroupListActivity.class);
-                startActivity(intent);
-
-                // Optional: close this activity so it doesn't stay in history
                 finish();
             }
         });
@@ -58,86 +60,67 @@ public class GroupDetailActivity extends AppCompatActivity {
         txtTitle.setText(groupName);
         txtEmoji.setText(groupEmoji);
 
-        // 3. Build the list of expenses depending on the group
-        ArrayList<Expense> expenseList = new ArrayList<>();
+        currentUserName = getIntent().getStringExtra("CURRENT_USER_NAME");
+        if (currentUserName == null) currentUserName = "Unknown";
 
-        switch (groupIndex) {
-            case 0:
-                // Group 0: e.g. "Madrid in French"
-                expenseList.add(new Expense(
-                        "💶", "Bar à jeux",
-                        "Baptiste", 25.00, "€"));
-                expenseList.add(new Expense(
-                        "🍹", "Soft et sangria",
-                        "Erell", 6.00, "€"));
-                expenseList.add(new Expense(
-                        "🍛", "Repas RL",
-                        "Arthur", 19.95, "€"));
-                break;
-
-            case 1:
-                // Group 1: e.g. "Club de billard"
-                expenseList.add(new Expense(
-                        "🎱", "Billard",
-                        "Filip", 12.00, "€"));
-                expenseList.add(new Expense(
-                        "🍺", "Drinks",
-                        "Antonio", 18.50, "€"));
-                break;
-
-            case 2:
-                // Group 2: "Barca"
-                expenseList.add(new Expense(
-                        "🏖️", "Beach bar",
-                        "Lisa", 30.00, "€"));
-                break;
-
-            case 3:
-                // Group 3: "Malaga vacation"
-                expenseList.add(new Expense(
-                        "🏎️", "Car breakdown",
-                        "Pedro", 430.00, "€"));
-                break;
-
-            default:
-                // no expenses yet
-                break;
-        }
+        // 3. Get the list of expenses for this group
+        expenseList = ExpenseRepository.getExpensesForGroup(groupIndex);
 
         // 4. Attach adapter
         ListView listView = findViewById(R.id.listViewExpenses);
-        ExpenseAdapter adapter = new ExpenseAdapter(this, expenseList);
+        adapter = new ExpenseAdapter(this, expenseList);
         listView.setAdapter(adapter);
 
-        // TextViews in the header
+        Button btnAddExpense = findViewById(R.id.btnAddExpense);
+        btnAddExpense.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GroupDetailActivity.this,
+                        AddExpenseActivity.class);
+                startActivityForResult(intent, REQUEST_ADD_EXPENSE);
+            }
+        });
+
+        // Initial calculation of totals
+        recalculateTotals();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_ADD_EXPENSE && resultCode == RESULT_OK && data != null) {
+            String emoji = data.getStringExtra("EXTRA_EMOJI");
+            String title = data.getStringExtra("EXTRA_TITLE");
+            String payer = data.getStringExtra("EXTRA_PAYER");
+            double amount = data.getDoubleExtra("EXTRA_AMOUNT", 0.0);
+
+            Expense newExpense = new Expense(emoji, title, payer, amount);
+            expenseList.add(newExpense);
+            adapter.notifyDataSetChanged();
+
+            // Recalculate totals after adding
+            recalculateTotals();
+        }
+    }
+
+    private void recalculateTotals() {
         TextView txtMyExpensesValue = findViewById(R.id.txtMyExpensesValue);
         TextView txtTotalExpensesValue = findViewById(R.id.txtTotalExpensesValue);
 
-        // TODO: adapt this to the logged-in user name
-        String currentUserName = "Antonio";
-
-        // Calculate totals
         double totalExpenses = 0.0;
         double myExpenses = 0.0;
 
         for (Expense e : expenseList) {
             totalExpenses += e.getAmount();
-
             if (e.getPayer().equalsIgnoreCase(currentUserName)) {
                 myExpenses += e.getAmount();
             }
         }
 
-        // Format and set the texts
-        String currency = "€";   // or e.getCurrency() if always same
-
-        txtTotalExpensesValue.setText(
-                currency + " " + String.format("%.2f", totalExpenses)
-        );
-
-        txtMyExpensesValue.setText(
-                currency + " " + String.format("%.2f", myExpenses)
-        );
-
+        txtTotalExpensesValue.setText("€" + " " + String.format("%.2f", totalExpenses));
+        txtMyExpensesValue.setText("€" + " " + String.format("%.2f", myExpenses));
     }
+
+
 }

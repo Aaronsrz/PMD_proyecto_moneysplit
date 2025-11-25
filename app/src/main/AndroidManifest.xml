@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PMD_Proyecto">
         <activity
+            android:name=".groupdetail.AddExpense.AddExpenseActivity"
+            android:exported="false" />
+        <activity
             android:name=".groupdetail.GroupDetailActivity"
             android:exported="false" />
         <activity

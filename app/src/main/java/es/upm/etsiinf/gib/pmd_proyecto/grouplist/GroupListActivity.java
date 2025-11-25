@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -31,6 +32,8 @@ public class GroupListActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        String currentUserName = getIntent().getStringExtra("CURRENT_USER_NAME"); //useless for now
+
         ListView listView = findViewById(R.id.gpl_lw_main);
 
         ArrayList<Group> groups = new ArrayList<>();
@@ -52,6 +55,19 @@ public class GroupListActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        TextView txtLoggedInAs = findViewById(R.id.txtLoggedInAs);
+        txtLoggedInAs.setText("Logged in as: " + currentUserName);
+
+        TextView txtLogout = findViewById(R.id.txtLogout);
+        txtLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GroupListActivity.this, es.upm.etsiinf.gib.pmd_proyecto.LoginActivity.class);
+                startActivity(intent);
+                finish();  // close GroupListActivity, but ExpenseRepository (static) stays in memory
+            }
+        });
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -63,6 +79,10 @@ public class GroupListActivity extends AppCompatActivity {
                 intent.putExtra("GROUP_INDEX", position);          // 0,1,2...
                 intent.putExtra("GROUP_NAME", clicked.getName());
                 intent.putExtra("GROUP_EMOJI", clicked.getEmoji());
+
+                // forward current user name
+                intent.putExtra("CURRENT_USER_NAME", currentUserName);
+
 
                 startActivity(intent);
             }

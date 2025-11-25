@@ -55,7 +55,7 @@ public class ExpenseAdapter extends BaseAdapter {
         txtEmoji.setText(e.getEmoji());
         txtTitle.setText(e.getTitle());
         txtSubtitle.setText("Paid by " + e.getPayer());
-        txtAmount.setText(e.getCurrency() + " " + String.format("%.2f", e.getAmount()));
+        txtAmount.setText("€" + " " + String.format("%.2f", e.getAmount()));
 
         return row;
     }
