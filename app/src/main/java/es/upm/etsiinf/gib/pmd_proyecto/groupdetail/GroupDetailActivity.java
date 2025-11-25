@@ -46,18 +46,6 @@ public class GroupDetailActivity extends AppCompatActivity {
             }
         });
 
-
-        /*ListView listView = findViewById(R.id.listViewExpenses);
-
-        ArrayList<Expense> expenseList = new ArrayList<>();
-        expenseList.add(new Expense("💶", "Bar à jeux", "Baptiste", 25.00, "€"));
-        expenseList.add(new Expense("🍹", "Soft et sangria", "Erell", 6.00, "€"));
-        expenseList.add(new Expense("🍛", "Repas RL", "Arthur", 19.95, "€"));
-        expenseList.add(new Expense("🚰", "Agua", "Filip", 4.50, "€"));
-
-        ExpenseAdapter adapter = new ExpenseAdapter(this, expenseList);
-        listView.setAdapter(adapter);*/
-
         // 1. Read the extras
         Intent intent = getIntent();
         int groupIndex = intent.getIntExtra("GROUP_INDEX", -1);
@@ -120,5 +108,36 @@ public class GroupDetailActivity extends AppCompatActivity {
         ListView listView = findViewById(R.id.listViewExpenses);
         ExpenseAdapter adapter = new ExpenseAdapter(this, expenseList);
         listView.setAdapter(adapter);
+
+        // TextViews in the header
+        TextView txtMyExpensesValue = findViewById(R.id.txtMyExpensesValue);
+        TextView txtTotalExpensesValue = findViewById(R.id.txtTotalExpensesValue);
+
+        // TODO: adapt this to the logged-in user name
+        String currentUserName = "Antonio";
+
+        // Calculate totals
+        double totalExpenses = 0.0;
+        double myExpenses = 0.0;
+
+        for (Expense e : expenseList) {
+            totalExpenses += e.getAmount();
+
+            if (e.getPayer().equalsIgnoreCase(currentUserName)) {
+                myExpenses += e.getAmount();
+            }
+        }
+
+        // Format and set the texts
+        String currency = "€";   // or e.getCurrency() if always same
+
+        txtTotalExpensesValue.setText(
+                currency + " " + String.format("%.2f", totalExpenses)
+        );
+
+        txtMyExpensesValue.setText(
+                currency + " " + String.format("%.2f", myExpenses)
+        );
+
     }
 }
