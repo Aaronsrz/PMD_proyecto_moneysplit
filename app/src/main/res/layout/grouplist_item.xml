@@ -46,7 +46,7 @@
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:src="@android:drawable/ic_media_next"
-            app:tint="#808080" />
+            android:src="@drawable/ic_arrow_right"
+            android:contentDescription="right arrow" />
     </LinearLayout>
 </LinearLayout>

@@ -17,10 +17,11 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:background="@android:color/transparent"
-            android:src="@android:drawable/ic_media_previous" />
+            android:src="@drawable/ic_arrow_left"
+            android:scaleType="centerInside" />
 
         <TextView
             android:id="@+id/txtBack"

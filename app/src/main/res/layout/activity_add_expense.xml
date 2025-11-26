@@ -15,10 +15,11 @@
 
         <ImageButton
             android:id="@+id/btnBackAddExpense"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@android:drawable/ic_media_previous"
-            android:background="@android:color/transparent" />
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_arrow_left"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"/>
 
         <TextView
             android:layout_width="wrap_content"
