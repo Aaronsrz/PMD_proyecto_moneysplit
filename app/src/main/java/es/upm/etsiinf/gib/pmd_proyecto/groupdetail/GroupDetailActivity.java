@@ -71,6 +71,33 @@ public class GroupDetailActivity extends AppCompatActivity {
         adapter = new ExpenseAdapter(this, expenseList);
         listView.setAdapter(adapter);
 
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+
+            Expense selectedExpense = expenseList.get(position);
+
+            new androidx.appcompat.app.AlertDialog.Builder(GroupDetailActivity.this)
+                    .setTitle("Delete expense")
+                    .setMessage("Are you sure you want to delete:\n\n" +
+                            selectedExpense.getEmoji() + "  " +
+                            selectedExpense.getTitle() + " (" +
+                            selectedExpense.getPayer() + ", €" +
+                            String.format("%.2f", selectedExpense.getAmount()) + ")?")
+                    .setPositiveButton("Delete", (dialog, which) -> {
+
+                        // Remove the item
+                        expenseList.remove(position);
+
+                        // Refresh list
+                        adapter.notifyDataSetChanged();
+
+                        // Update totals
+                        recalculateTotals();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
+
+
         Button btnAddExpense = findViewById(R.id.btnAddExpense);
         btnAddExpense.setOnClickListener(new View.OnClickListener() {
             @Override
