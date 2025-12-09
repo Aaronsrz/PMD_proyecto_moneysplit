@@ -151,8 +151,8 @@
             android:layout_height="64dp"
             android:background="@drawable/bg_circle_button"
             android:text="+"
-            android:textSize="26sp"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            android:textSize="26sp" />
 
         <TextView
             android:layout_width="wrap_content"

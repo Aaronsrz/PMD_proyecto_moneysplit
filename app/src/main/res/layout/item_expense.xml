@@ -10,7 +10,8 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:padding="12dp"
-        android:background="@drawable/bg_expense_item">
+        android:background="@drawable/bg_expense_item"
+        android:descendantFocusability="afterDescendants">
 
         <!-- Emoji / icon -->
         <TextView
@@ -21,7 +22,6 @@
             android:text="💶"
             android:textSize="28sp" />
 
-        <!-- Space -->
         <Space
             android:layout_width="12dp"
             android:layout_height="wrap_content" />
@@ -49,6 +49,19 @@
                 android:textSize="12sp"
                 android:textColor="#AAAAAA" />
         </LinearLayout>
+
+        <!-- Share button -->
+        <ImageButton
+            android:id="@+id/btnShareExpense"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="6dp"
+            android:src="@drawable/ic_share"
+            android:contentDescription="Share expense"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
 
         <!-- Amount -->
         <TextView

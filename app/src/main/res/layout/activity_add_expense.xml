@@ -82,6 +82,18 @@
         android:padding="12dp"
         android:background="@android:drawable/edit_text"
         android:layout_marginBottom="24dp" />
+    <!-- Add bill (camera) button -->
+
+    <Button
+        android:id="@+id/btnAddBill"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add Photo"
+        android:textSize="16sp"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"
+        android:drawableStart="@drawable/ic_camera"
+        android:drawablePadding="10dp" />
 
     <!-- Add button -->
     <Button

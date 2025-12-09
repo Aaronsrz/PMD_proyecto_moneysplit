@@ -13,23 +13,33 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.pm.PackageManager;
+import android.os.Build;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 
 import es.upm.etsiinf.gib.pmd_proyecto.R;
 import es.upm.etsiinf.gib.pmd_proyecto.groupdetail.AddExpense.AddExpenseActivity;
 import es.upm.etsiinf.gib.pmd_proyecto.grouplist.GroupListActivity;
 
-public class GroupDetailActivity extends AppCompatActivity {
+public class   GroupDetailActivity extends AppCompatActivity {
     private static final int REQUEST_ADD_EXPENSE = 1;
-
+    private static final String CHANNEL_ID = "expenses_channel";
+    private ActivityResultLauncher<String> notifPermissionLauncher;
     private ArrayList<Expense> expenseList;
     private ExpenseAdapter adapter;
     private String currentUserName;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_group_detail);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -68,7 +78,8 @@ public class GroupDetailActivity extends AppCompatActivity {
 
         // 4. Attach adapter
         ListView listView = findViewById(R.id.listViewExpenses);
-        adapter = new ExpenseAdapter(this, expenseList);
+        listView.setItemsCanFocus(true); // <-- IMPORTANT for ImageButton clicks inside ListView rows
+        adapter = new ExpenseAdapter(this, expenseList, groupName); // include groupName (optional)
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener((parent, view, position, id) -> {
