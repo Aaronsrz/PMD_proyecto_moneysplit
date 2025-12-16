@@ -126,6 +126,14 @@
         android:paddingTop="4dp"
         android:paddingBottom="8dp" />
 
+    <ListView
+        android:id="@+id/listViewRates"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="8dp"
+        android:paddingTop="4dp" />
+
 
     <!-- Section title -->
     <TextView

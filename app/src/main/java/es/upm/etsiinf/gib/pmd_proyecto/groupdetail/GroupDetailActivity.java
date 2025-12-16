@@ -27,6 +27,8 @@ import java.util.ArrayList;
 
 import es.upm.etsiinf.gib.pmd_proyecto.R;
 import es.upm.etsiinf.gib.pmd_proyecto.groupdetail.AddExpense.AddExpenseActivity;
+import es.upm.etsiinf.gib.pmd_proyecto.groupdetail.Currency.CurrencyAdapter;
+import es.upm.etsiinf.gib.pmd_proyecto.groupdetail.Currency.CurrencyItem;
 import es.upm.etsiinf.gib.pmd_proyecto.grouplist.GroupListActivity;
 import android.os.Handler;
 import android.os.Looper;
@@ -40,6 +42,7 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -51,6 +54,11 @@ public class   GroupDetailActivity extends AppCompatActivity {
     private ExpenseAdapter adapter;
     private String currentUserName;
     private TextView txtApiResult;
+    private ListView listViewRates;
+    private ArrayList<CurrencyItem> rateItems;
+    private CurrencyAdapter rateAdapter;
+    private double lastTotalExpenses = 0.0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,8 +143,32 @@ public class   GroupDetailActivity extends AppCompatActivity {
         });
 
         txtApiResult = findViewById(R.id.txtApiResult);
-        fetchRateInBackground();   // starts the background task
 
+        listViewRates = findViewById(R.id.listViewRates);
+        rateItems = new ArrayList<>();
+        rateAdapter = new CurrencyAdapter(this, rateItems);
+        listViewRates.setAdapter(rateAdapter);
+
+        listViewRates.setOnItemClickListener((parent, view, position, id) -> {
+            CurrencyItem item = rateItems.get(position);
+
+            double rate = item.getRate();
+            String code = item.getCode();
+
+            double converted = lastTotalExpenses * rate;
+
+            new androidx.appcompat.app.AlertDialog.Builder(GroupDetailActivity.this)
+                    .setTitle("Group total in " + code)
+                    .setMessage(String.format(
+                            "Current total: € %.2f\nApproximate in %s: %.2f %s",
+                            lastTotalExpenses,
+                            code, converted, code
+                    ))
+                    .setPositiveButton("OK", null)
+                    .show();
+        });
+
+        fetchRatesInBackground();
 
         // Initial calculation of totals
         recalculateTotals();
@@ -175,42 +207,27 @@ public class   GroupDetailActivity extends AppCompatActivity {
             }
         }
 
-        txtTotalExpensesValue.setText("€" + " " + String.format("%.2f", totalExpenses));
-        txtMyExpensesValue.setText("€" + " " + String.format("%.2f", myExpenses));
+        lastTotalExpenses = totalExpenses;
+
+        txtTotalExpensesValue.setText("€ " + String.format("%.2f", totalExpenses));
+        txtMyExpensesValue.setText("€ " + String.format("%.2f", myExpenses));
     }
 
-    private void fetchRateInBackground() {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        Handler handler = new Handler(Looper.getMainLooper());
 
-        txtApiResult.setText("Fetching rate from API...");
-
-        executor.execute(() -> {
-            String result = callFixerApi();
-            handler.post(() -> txtApiResult.setText(result));
-        });
-    }
-
-    private String callFixerApi() {
+    private List<CurrencyItem> callFixerForList() {
+        List<CurrencyItem> list = new ArrayList<>();
         HttpURLConnection conn = null;
         BufferedReader reader = null;
 
         try {
             //String apiKey = "adec94ce04be1c287e07f5216c30c80c";
             //Don't use too much during tests! (100 requests/month free plan)
+            String apiKey = "YOUR_API_KEY_HERE";
 
-            String apiKey = "YOUR_API_KEY_HERE";   // replace with real key for testing
-
-            if (apiKey.equals("YOUR_API_KEY_HERE")) {
-                return "API key missing (demo mode)";
-            }
-
-
-            // URL exactly as in the documentation, but with HTTPS
             URL url = new URL(
                     "https://data.fixer.io/api/latest"
                             + "?access_key=" + apiKey
-                            + "&symbols=USD"
+                            + "&symbols=USD,GBP,CHF"
             );
 
             conn = (HttpURLConnection) url.openConnection();
@@ -228,36 +245,70 @@ public class   GroupDetailActivity extends AppCompatActivity {
 
             String response = sb.toString();
 
-            // 👉 TEMP: show raw JSON to be sure it works
-            // return response;
-
-            // Normal case: parse JSON
             JSONObject json = new JSONObject(response);
 
-            // If the API says success = false, show the error message
+            // If Fixer returns an error (success=false), stop here
             if (!json.optBoolean("success", true)) {
                 JSONObject error = json.optJSONObject("error");
-                String info = (error != null)
-                        ? error.optString("info", "Unknown API error")
-                        : "Unknown API error";
-                return "API error: " + info;
+                String info = (error != null) ? error.optString("info", "API error") : "API error";
+                txtApiResult.setText("Fixer error: " + info);
+                return list;  // empty
             }
 
             JSONObject rates = json.getJSONObject("rates");
-            double usd = rates.getDouble("USD");
 
-            return "1 EUR = " + usd + " USD (via Fixer)";
+            // Add a row for each currency
+            if (rates.has("USD")) {
+                double usd = rates.getDouble("USD");
+                list.add(new CurrencyItem("USD", usd, R.drawable.ic_flag_us));
+            }
+
+            if (rates.has("GBP")) {
+                double gbp = rates.getDouble("GBP");
+                list.add(new CurrencyItem("GBP", gbp, R.drawable.ic_flag_uk));
+            }
+
+            if (rates.has("CHF")) {
+                double chf = rates.getDouble("CHF");
+                list.add(new CurrencyItem("CHF", chf, R.drawable.ic_flag_ch));
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
-            return "Exception: " + e.getClass().getSimpleName()
-                    + " – " + e.getMessage();
+            txtApiResult.setText("Exception: " + e.getClass().getSimpleName());
+            // return empty list
         } finally {
             if (conn != null) conn.disconnect();
             if (reader != null) {
                 try { reader.close(); } catch (IOException ignored) {}
             }
         }
+
+        return list;
+    }
+
+
+
+    private void fetchRatesInBackground() {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler = new Handler(Looper.getMainLooper());
+
+        executor.execute(() -> {
+            List<CurrencyItem> result = callFixerForList();
+
+            handler.post(() -> {
+                rateItems.clear();
+                rateItems.addAll(result);
+                rateAdapter.notifyDataSetChanged();
+
+                if (result.isEmpty()) {
+                    txtApiResult.setText("No exchange rates available");
+                } else {
+                    // REMOVE the message once list is shown
+                    txtApiResult.setVisibility(View.GONE);
+                }
+            });
+        });
     }
 
 
