@@ -53,7 +53,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
-            android:text="Madrid in French (+ Filip)"
+            android:text="Madrid trip"
             android:textSize="22sp"
             android:textStyle="bold" />
     </LinearLayout>
@@ -83,11 +83,12 @@
 
             <TextView
                 android:id="@+id/txtMyExpensesValue"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="€ 36.07"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:singleLine="true" />
         </LinearLayout>
 
         <LinearLayout
@@ -108,11 +109,13 @@
 
             <TextView
                 android:id="@+id/txtTotalExpensesValue"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="end"
                 android:text="€ 213.95"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:singleLine="true" />
         </LinearLayout>
     </LinearLayout>
 

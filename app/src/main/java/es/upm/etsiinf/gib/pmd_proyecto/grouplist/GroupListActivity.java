@@ -1,6 +1,7 @@
 package es.upm.etsiinf.gib.pmd_proyecto.grouplist;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +22,9 @@ import es.upm.etsiinf.gib.pmd_proyecto.R;
 import es.upm.etsiinf.gib.pmd_proyecto.groupdetail.GroupDetailActivity;
 
 public class GroupListActivity extends AppCompatActivity {
+    private static final String PREFS_NAME = "login_prefs";
+    private static final String KEY_KEEP_LOGGED_IN = "keep_logged_in";
+    private static final String KEY_USERNAME = "username";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +41,10 @@ public class GroupListActivity extends AppCompatActivity {
         ListView listView = findViewById(R.id.gpl_lw_main);
 
         ArrayList<Group> groups = new ArrayList<>();
-        groups.add(new Group("🇪🇸", "Madrid in French"));
-        groups.add(new Group("🚽", "Club de billard"));
+        groups.add(new Group("🇪🇸", "Madrid trip"));
+        groups.add(new Group("🎳", "Bowling"));
         groups.add(new Group("🌅", "Barca"));
-        groups.add(new Group("🇪🇸", "Malaga vacation"));
+        groups.add(new Group("🏝️", "Malaga vacation"));
 
         GroupAdapter adapter = new GroupAdapter(this, groups);
         listView.setAdapter(adapter);
@@ -62,9 +66,16 @@ public class GroupListActivity extends AppCompatActivity {
         txtLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+
+                editor.putBoolean(KEY_KEEP_LOGGED_IN, false);
+                editor.remove(KEY_USERNAME);
+                editor.apply();
+
                 Intent intent = new Intent(GroupListActivity.this, es.upm.etsiinf.gib.pmd_proyecto.LoginActivity.class);
                 startActivity(intent);
-                finish();  // close GroupListActivity, but ExpenseRepository (static) stays in memory
+                finish();  // close GroupListActivity, but ExpenseRepository stays in memory
             }
         });
 

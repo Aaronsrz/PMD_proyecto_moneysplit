@@ -21,20 +21,23 @@ public class ExpenseRepository {
             case 0:
                 list.add(new Expense("💶", "Game bar", "Baptiste", 25.00));
                 list.add(new Expense("🍹", "Soft and sangria", "Erell", 6.00));
-                list.add(new Expense("🍛", "Repas RL", "Arthur", 19.95));
+                list.add(new Expense("🍛", "Food", "Arthur", 19.95));
                 break;
 
             case 1:
-                list.add(new Expense("🎱", "Billard", "Filip", 12.00));
-                list.add(new Expense("🍺", "Drinks", "Antonio", 18.50));
+                list.add(new Expense("🎳", "Bowling", "Filip", 60.00));
+                list.add(new Expense("🍺", "Drinks", "Aaron", 18.50));
                 break;
 
             case 2:
-                list.add(new Expense("🏖️", "Beach bar", "Lisa", 30.00));
+                list.add(new Expense("🏖️", "Beach bar", "Sofia", 30.00));
+                list.add(new Expense("🏖️", "Sagrada Familia", "Emma", 49.50));
                 break;
 
             case 3:
                 list.add(new Expense("🏎️", "Car breakdown", "Pedro", 430.00));
+                list.add(new Expense("⛽️", "Gasoline", "Gael", 63.45));
+                list.add(new Expense("🎢", "Amusement park", "Isaac", 120.00));
                 break;
 
             default:

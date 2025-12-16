@@ -35,6 +35,18 @@
         app:layout_constraintTop_toBottomOf="@+id/login_txt_name"
         app:layout_constraintVertical_bias="0.136" />
 
+    <CheckBox
+        android:id="@+id/chkKeepLoggedIn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:text="Keep me logged in"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/login_btn_login"
+        app:layout_constraintStart_toStartOf="@+id/login_btn_login"
+        app:layout_constraintTop_toBottomOf="@+id/login_btn_login"
+        app:layout_constraintVertical_bias="0.0" />
+
     <Button
         android:id="@+id/login_btn_login"
         android:layout_width="0dp"

@@ -32,6 +32,7 @@ import es.upm.etsiinf.gib.pmd_proyecto.groupdetail.Currency.CurrencyItem;
 import es.upm.etsiinf.gib.pmd_proyecto.grouplist.GroupListActivity;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -45,19 +46,27 @@ import java.net.URL;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class   GroupDetailActivity extends AppCompatActivity {
-    private static final int REQUEST_ADD_EXPENSE = 1;
     private static final String CHANNEL_ID = "expenses_channel";
     private ActivityResultLauncher<String> notifPermissionLauncher;
     private ArrayList<Expense> expenseList;
     private ExpenseAdapter adapter;
+    private ActivityResultLauncher<Intent> addExpenseLauncher;
     private String currentUserName;
     private TextView txtApiResult;
     private ListView listViewRates;
     private ArrayList<CurrencyItem> rateItems;
     private CurrencyAdapter rateAdapter;
     private double lastTotalExpenses = 0.0;
+    private TextView txtMyExpensesValue;
+    private TextView txtTotalExpensesValue;
+    private ListView listViewExpenses;
+    private final NumberFormat moneyFormat = NumberFormat.getNumberInstance(Locale.US);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +79,12 @@ public class   GroupDetailActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        moneyFormat.setMinimumFractionDigits(2);
+        moneyFormat.setMaximumFractionDigits(2);
+
+        txtMyExpensesValue = findViewById(R.id.txtMyExpensesValue);
+        txtTotalExpensesValue = findViewById(R.id.txtTotalExpensesValue);
 
         ImageButton btnBack = findViewById(R.id.btnBack);
 
@@ -100,12 +115,12 @@ public class   GroupDetailActivity extends AppCompatActivity {
         expenseList = ExpenseRepository.getExpensesForGroup(groupIndex);
 
         // 4. Attach adapter
-        ListView listView = findViewById(R.id.listViewExpenses);
-        listView.setItemsCanFocus(true); // <-- IMPORTANT for ImageButton clicks inside ListView rows
-        adapter = new ExpenseAdapter(this, expenseList, groupName); // include groupName (optional)
-        listView.setAdapter(adapter);
+        listViewExpenses = findViewById(R.id.listViewExpenses);
+        listViewExpenses.setItemsCanFocus(true);
+        adapter = new ExpenseAdapter(this, expenseList, groupName);
+        listViewExpenses.setAdapter(adapter);
 
-        listView.setOnItemClickListener((parent, view, position, id) -> {
+        listViewExpenses.setOnItemClickListener((parent, view, position, id) -> {
 
             Expense selectedExpense = expenseList.get(position);
 
@@ -131,6 +146,41 @@ public class   GroupDetailActivity extends AppCompatActivity {
                     .show();
         });
 
+        addExpenseLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Intent data = result.getData();
+
+                        String emoji = data.getStringExtra("EXTRA_EMOJI");
+                        String title = data.getStringExtra("EXTRA_TITLE");
+                        String payer = data.getStringExtra("EXTRA_PAYER");
+                        double amount = data.getDoubleExtra("EXTRA_AMOUNT", 0.0);
+
+                        // Safety check
+                        if (emoji == null || title == null || payer == null) return;
+
+                        expenseList.add(new Expense(emoji, title, payer, amount));
+                        adapter.notifyDataSetChanged();
+                        recalculateTotals();
+
+                        listViewExpenses.post(() -> {
+                            // Ensure ListView accepts programmatic scroll
+                            listViewExpenses.requestFocusFromTouch();
+
+                            // Hard refresh (helps when UI feels "laggy")
+                            listViewExpenses.invalidateViews();
+
+                            // Jump to last item (most reliable)
+                            int last = adapter.getCount() - 1;
+                            if (last >= 0) {
+                                listViewExpenses.setSelection(last);
+                            }
+                        });
+                    }
+                }
+        );
+
 
         Button btnAddExpense = findViewById(R.id.btnAddExpense);
         btnAddExpense.setOnClickListener(new View.OnClickListener() {
@@ -138,7 +188,7 @@ public class   GroupDetailActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(GroupDetailActivity.this,
                         AddExpenseActivity.class);
-                startActivityForResult(intent, REQUEST_ADD_EXPENSE);
+                addExpenseLauncher.launch(intent);
             }
         });
 
@@ -174,29 +224,7 @@ public class   GroupDetailActivity extends AppCompatActivity {
         recalculateTotals();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_ADD_EXPENSE && resultCode == RESULT_OK && data != null) {
-            String emoji = data.getStringExtra("EXTRA_EMOJI");
-            String title = data.getStringExtra("EXTRA_TITLE");
-            String payer = data.getStringExtra("EXTRA_PAYER");
-            double amount = data.getDoubleExtra("EXTRA_AMOUNT", 0.0);
-
-            Expense newExpense = new Expense(emoji, title, payer, amount);
-            expenseList.add(newExpense);
-            adapter.notifyDataSetChanged();
-
-            // Recalculate totals after adding
-            recalculateTotals();
-        }
-    }
-
     private void recalculateTotals() {
-        TextView txtMyExpensesValue = findViewById(R.id.txtMyExpensesValue);
-        TextView txtTotalExpensesValue = findViewById(R.id.txtTotalExpensesValue);
-
         double totalExpenses = 0.0;
         double myExpenses = 0.0;
 
@@ -209,8 +237,8 @@ public class   GroupDetailActivity extends AppCompatActivity {
 
         lastTotalExpenses = totalExpenses;
 
-        txtTotalExpensesValue.setText("€ " + String.format("%.2f", totalExpenses));
-        txtMyExpensesValue.setText("€ " + String.format("%.2f", myExpenses));
+        txtTotalExpensesValue.setText("€ " + moneyFormat.format(totalExpenses));
+        txtMyExpensesValue.setText("€ " + moneyFormat.format(myExpenses));
     }
 
 
