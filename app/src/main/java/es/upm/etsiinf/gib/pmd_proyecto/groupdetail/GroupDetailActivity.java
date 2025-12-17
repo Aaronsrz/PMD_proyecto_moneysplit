@@ -70,7 +70,7 @@ public class GroupDetailActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_group_detail);
 
-        // ✅ Request notification permission (Android 13+)
+        //notification permission
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
                     != PackageManager.PERMISSION_GRANTED) {
@@ -78,7 +78,7 @@ public class GroupDetailActivity extends AppCompatActivity {
             }
         }
 
-        // ✅ Create notification channel
+        // notification channel
         createNotificationChannel();
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -140,7 +140,7 @@ public class GroupDetailActivity extends AppCompatActivity {
                     .show();
         });
 
-        // ✅ Launcher for AddExpenseActivity
+
         addExpenseLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -216,7 +216,7 @@ public class GroupDetailActivity extends AppCompatActivity {
         recalculateTotals();
     }
 
-    // ✅ Create notification channel
+
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "MoneySplit Notifications";
