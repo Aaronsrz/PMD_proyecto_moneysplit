@@ -251,8 +251,8 @@ public class GroupDetailActivity extends AppCompatActivity {
         BufferedReader reader = null;
         try {
             // Use only for testing purposes (100 use/month)
-            //String apiKey = "adec94ce04be1c287e07f5216c30c80c"
-            String apiKey = "YOUR_API_KEY_HERE";
+            String apiKey = "adec94ce04be1c287e07f5216c30c80c";
+            //String apiKey = "YOUR_API_KEY_HERE"; // Replace with your Fixer API key
             URL url = new URL("https://data.fixer.io/api/latest?access_key="
                     + apiKey
                     + "&symbols=USD,GBP,CHF");
