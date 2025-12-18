@@ -249,10 +249,13 @@ public class GroupDetailActivity extends AppCompatActivity {
         List<CurrencyItem> list = new ArrayList<>();
         HttpURLConnection conn = null;
         BufferedReader reader = null;
-
         try {
+            // Use only for testing purposes (100 use/month)
+            //String apiKey = "adec94ce04be1c287e07f5216c30c80c"
             String apiKey = "YOUR_API_KEY_HERE";
-            URL url = new URL("https://data.fixer.io/api/latest?access_key=" + apiKey + "&symbols=USD,GBP,CHF");
+            URL url = new URL("https://data.fixer.io/api/latest?access_key="
+                    + apiKey
+                    + "&symbols=USD,GBP,CHF");
 
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
